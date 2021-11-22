@@ -38,6 +38,7 @@ public class Rad2FFT {
         *
         */
         for(int i = 1; i * 2 <= N; i *= 2) {
+            // Butterfly operation that gives us the DFT between the two pairs l and k
             for(int j = 0; j < N; j += i * 2) {
                 for(int k = j; k < j + i; k++) {
                     int l = k + i;
