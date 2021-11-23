@@ -10,7 +10,7 @@ import java.io.Console;
 
 public class Rad2FFT {
     // Compute the FFT in place using, returning two arrays with the corresponding real and imaginary number for that ith entry. 
-    public static void Radix2FFT(double real[], double image[]) {
+    public static double[] Radix2FFT(double real[], double image[]) {
         int N = real.length;
         int levels = (int)(Math.log(N) / Math.log(2));
         int amountToShift = 32 - levels;
@@ -42,9 +42,9 @@ public class Rad2FFT {
             for(int j = 0; j < N; j += i * 2) {
                 for(int k = j; k < j + i; k++) {
                     int l = k + i;
-                    double sin = Math.sin(Math.PI * (k-j) / i), 
+                    double sin = Math.sin(Math.PI * (k-j) / i),
                            cos = Math.cos(Math.PI * (k-j) / i);
-                    double rea = real[l] * cos + image[l] * sin, 
+                    double rea = real[l] * cos + image[l] * sin,
                            img = -real[l] * sin + image[l] * cos;
                     real[l] = real[k] - rea;
                     image[l] = image[k] - img;
@@ -53,7 +53,12 @@ public class Rad2FFT {
                 }
             }
         }
-        displayFFT(real, image, N);
+        double[] magnitudes = new double[N];
+        for(int i = 0; i < N; ++i)
+            magnitudes[i] = Math.sqrt(Math.pow(real[i], 2)+Math.pow(image[i], 2));
+
+//        displayFFT(real, image, N);
+        return magnitudes;
     }
 
     private static void swap(double a[], int i, int j) {
