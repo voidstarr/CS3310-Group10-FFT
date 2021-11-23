@@ -8,17 +8,15 @@ public class VisualizerPanel extends JPanel {
         setBorder(BorderFactory.createLineBorder(Color.black));
     }
 
-    public Dimension getPreferredSize() {
-        return new Dimension(600, 400);
-    }
-
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        for (int i = 0; i < getSize().width; ++i) {
-            if (i >= data.length) break;
+        g.setColor(Color.black);
+        g.fillRect(0, 0, getSize().width, getSize().height);
+        int width = getSize().width / data.length;
+        for (int i = 0; i < data.length; ++i) {
             int height = (int) map(data[i], 0, 30000, 0, getSize().height);
-            g.setColor(new Color(200, 200, height));
-            g.drawOval(i, height, 2, 2);
+            g.setColor(new Color(200, 200, 100));
+            g.fillRect(i * width, getSize().height - height, width, height);
         }
     }
 

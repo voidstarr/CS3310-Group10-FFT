@@ -33,40 +33,31 @@ public class Visualizer {
         System.out.printf("open line buffer size: %d%n", openInput.getBufferSize());
 
 
-        Thread dataRunner = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int bytesRead;
-                byte[] data = new byte[openInput.getBufferSize()];
-                openInput.start();
-                while (!stopped) {
-                    bytesRead = openInput.read(data, 0, data.length);
-                    double[] samples = new double[data.length / 2];
-                    for (int i = 1; i < data.length; i *= 2) {
-                        samples[i - 1] = data[i] << 8 | data[i - 1] & 0xFF;
-                    }
-                    double[] samplesImag = new double[data.length / 2];
-                    double[] magnitudes = Rad2FFT.Radix2FFT(samples, samplesImag);
-//            System.out.println(Arrays.toString(magnitudes));
-                    double[] frequencies = new double[data.length / 2];
-                    for (int i = 0; i < frequencies.length / 2; ++i) {
-                        frequencies[i] = (double) i * samples.length / openInput.getFormat().getSampleRate();
-                    }
-//            System.out.println(Arrays.toString(frequencies));
-                    window.setFFTData(magnitudes);
-                    // transform data?
-                    // do fft
-                    // draw data
+        Thread dataRunner = new Thread(() -> {
+            int bytesRead;
+            byte[] data = new byte[openInput.getBufferSize()];
+            while (!stopped) {
+                if (!openInput.isOpen()) continue;
+                bytesRead = openInput.read(data, 0, data.length);
+                double[] samples = new double[data.length / 2];
+                for (int i = 1; i < data.length; i *= 2) {
+                    samples[i - 1] = data[i] << 8 | data[i - 1] & 0xFF;
                 }
+                double[] samplesImag = new double[data.length / 2];
+                double[] magnitudes = Rad2FFT.Radix2FFT(samples, samplesImag);
+//                System.out.println(Arrays.toString(magnitudes));
+                window.setFFTData(magnitudes);
             }
         });
         dataRunner.start();
     }
 
     public static void changeInput(int i) {
+        if (openInput != null && openInput.isOpen()) openInput.close();
         try {
-            openInput = (TargetDataLine) AudioSystem.getLine(inputs.get(0));
+            openInput = (TargetDataLine) AudioSystem.getLine(inputs.get(i));
             openInput.open(preferredFormat, 1024);
+            openInput.start();
         } catch (LineUnavailableException e) {
             e.printStackTrace();
         }

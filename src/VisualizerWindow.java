@@ -1,5 +1,6 @@
 import javax.sound.sampled.Line;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -32,14 +33,15 @@ public class VisualizerWindow extends JFrame implements ActionListener {
         }
 
         panel = new VisualizerPanel();
-        add(panel);
+        add(panel, BorderLayout.CENTER);
 
 //        setLayout(new BorderLayout());
         setJMenuBar(menuBar);
-        setSize(500, 400);
+        //setSize(500, 400);
         setTitle("CS3310 Group10 FFT");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        pack();
         setVisible(true);
 
     }
