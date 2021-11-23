@@ -16,6 +16,7 @@ public class Visualizer {
     public static void main(String[] args) throws LineUnavailableException {
         var info = new DataLine.Info(TargetDataLine.class, preferredFormat);
 
+        // Iterate over all audio devices and pick out input devices that support our desired audio format
         var mixerInfos = new ArrayList<>(Arrays.asList(AudioSystem.getMixerInfo()));
         var portInfo = new Line.Info(Port.class);
         for (var mixerInfo : mixerInfos) {
@@ -29,38 +30,42 @@ public class Visualizer {
                 }
             }
         }
+
+        // open our window
         window = new VisualizerWindow(inputs);
 
+        // open input device
         changeInput(0);
         System.out.printf("open line buffer size: %d%n", openInput.getBufferSize());
 
-
+        // this thread is our data fetching thread
         Thread dataRunner = new Thread(() -> {
-            int bytesRead;
             byte[] data = new byte[openInput.getBufferSize()];
             while (!stopped) {
                 if (!openInput.isOpen()) continue;
-                bytesRead = openInput.read(data, 0, data.length);
+                // get audio data from microphone
+                openInput.read(data, 0, data.length);
                 double[] samples = new double[data.length / 2];
+                // transform data to double array
                 short[] tmp = new short[data.length / 2];
                 var bb = ByteBuffer.wrap(data).order(ByteOrder.BIG_ENDIAN).asShortBuffer();
                 bb.get(tmp);
                 for (int i = 0; i < tmp.length; ++i)
                     samples[i] = tmp[i];
-                //System.out.println(Arrays.toString(data));
-                // System.out.println(Arrays.toString(samples));
-                // System.out.println(samples.length);
+                // perform FFT
                 double[] samplesImag = new double[data.length / 2];
                 Arrays.fill(samplesImag, 0);
                 double[] magnitudes = Rad2FFT.Radix2FFT(samples, samplesImag);
-//                System.out.println(Arrays.toString(magnitudes));
+                // send FFT data to graph
                 window.setFFTData(magnitudes);
-                //  System.out.println(Arrays.toString(magnitudes));
             }
         });
         dataRunner.start();
     }
 
+    /*
+    * Closes open input device, opens new one
+    * */
     public static void changeInput(int i) {
         if (openInput != null && openInput.isOpen()) openInput.close();
         try {

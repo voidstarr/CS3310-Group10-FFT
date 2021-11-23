@@ -11,10 +11,9 @@ public class VisualizerWindow extends JFrame implements ActionListener {
     JRadioButtonMenuItem inputSelections[];
     VisualizerPanel panel;
 
-    // take list of audio inputs
-    // populate menu bar
-    // Main.setInput
-    //
+    /*
+    * Build window and open it
+    * */
     public VisualizerWindow(ArrayList<Line.Info> inputs) {
         menuBar = new JMenuBar();
         inputMenu = new JMenu("Input");
@@ -32,25 +31,30 @@ public class VisualizerWindow extends JFrame implements ActionListener {
             inputSelection.addActionListener(this);
         }
 
+        // add visualizer canvas
         panel = new VisualizerPanel();
         add(panel, BorderLayout.CENTER);
 
-//        setLayout(new BorderLayout());
         setJMenuBar(menuBar);
-        //setSize(500, 400);
         setTitle("CS3310 Group10 FFT");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         pack();
         setVisible(true);
-
     }
 
+    /*
+    * When an input radio button is selected, we need to change
+    * input devices.
+    * */
     @Override
     public void actionPerformed(ActionEvent e) {
         Visualizer.changeInput(Integer.parseInt(e.getActionCommand()));
     }
 
+    /*
+    * Receive FFT data and forward it to graph panel.
+    * */
     public void setFFTData(double[] magnitudes) {
         panel.setFFTData(magnitudes);
     }
