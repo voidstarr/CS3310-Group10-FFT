@@ -12,11 +12,12 @@ public class VisualizerPanel extends JPanel {
         super.paintComponent(g);
         g.setColor(Color.black);
         g.fillRect(0, 0, getSize().width, getSize().height);
-        int width = getSize().width / data.length;
-        for (int i = 0; i < data.length; ++i) {
-            int height = (int) map(data[i], 0, 30000, 0, getSize().height);
+        int width = getSize().width / data.length * 8;
+        int j = getSize().width;
+        for (int i = data.length / 8; i > 0; --i) {
+            int height = (int) map(data[i], 0, 2000, 0, 300);
             g.setColor(new Color(200, 200, 100));
-            g.fillRect(i * width, getSize().height - height, width, height);
+            g.fillRect((i + 8) * width, getSize().height - height, width, height);
         }
     }
 

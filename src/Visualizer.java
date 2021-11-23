@@ -1,4 +1,6 @@
 import javax.sound.sampled.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -40,13 +42,20 @@ public class Visualizer {
                 if (!openInput.isOpen()) continue;
                 bytesRead = openInput.read(data, 0, data.length);
                 double[] samples = new double[data.length / 2];
-                for (int i = 1; i < data.length; i *= 2) {
-                    samples[i - 1] = data[i] << 8 | data[i - 1] & 0xFF;
-                }
+                short[] tmp = new short[data.length / 2];
+                var bb = ByteBuffer.wrap(data).order(ByteOrder.BIG_ENDIAN).asShortBuffer();
+                bb.get(tmp);
+                for (int i = 0; i < tmp.length; ++i)
+                    samples[i] = tmp[i];
+                //System.out.println(Arrays.toString(data));
+                // System.out.println(Arrays.toString(samples));
+                // System.out.println(samples.length);
                 double[] samplesImag = new double[data.length / 2];
+                Arrays.fill(samplesImag, 0);
                 double[] magnitudes = Rad2FFT.Radix2FFT(samples, samplesImag);
 //                System.out.println(Arrays.toString(magnitudes));
                 window.setFFTData(magnitudes);
+                //  System.out.println(Arrays.toString(magnitudes));
             }
         });
         dataRunner.start();
